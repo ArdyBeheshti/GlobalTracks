@@ -11,17 +11,17 @@ import time
 import glob
 import re
 
-def CreateDB(path):
+
+def create_db(data_path):
     timestr = time.strftime("%Y%m%d")
-    destination_folder = "D:\Diddly\Python\Stream\Data"
-    daily = glob.glob(destination_folder + "/*daily_{}.csv".format(timestr))
-    weekly = glob.glob(destination_folder + "/*weekly_{}.csv".format(timestr))
+    daily = glob.glob(data_path + "/*daily_{}.csv".format(timestr))
+    weekly = glob.glob(data_path + "/*weekly_{}.csv".format(timestr))
     conn = lite.connect(r'D:\Diddly\Python\Stream\Data\Spotify.db')
     c = conn.cursor()
     
     for daily_country in daily:
         res = re.findall(r'\w+', daily_country)
-        daily_sql =  '''CREATE TABLE {} (TrackID int PRIMARY KEY, Position int, TrackName text,
+        daily_sql = '''CREATE TABLE {} (TrackID int PRIMARY KEY, Position int, TrackName text,
                                         Artist text, Streams int, URL float, Appears int, Rank int,
                                         SongIDs int, Danceability float, Energy float, Acousticness float, Analysis_URL text,
                                         Duration_MS int, Spotify_Song_ID int, Instrumentalness float, Key int, Liveness float,
@@ -36,7 +36,7 @@ def CreateDB(path):
     for weekly_country in weekly:
         res_weekly = re.findall(r'\w+', weekly_country)
         
-        weekly_sql =  '''CREATE TABLE {} (TrackID int PRIMARY KEY, Position int, TrackName text,
+        weekly_sql = '''CREATE TABLE {} (TrackID int PRIMARY KEY, Position int, TrackName text,
                                         Artist text, Streams int, URL float, Appears int, Rank int,
                                         SongIDs int, Danceability float, Energy float, Acousticness float, Analysis_URL text,
                                         Duration_MS int, Spotify_Song_ID int, Instrumentalness float, Key int, Liveness float,
