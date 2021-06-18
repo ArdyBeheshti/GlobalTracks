@@ -16,7 +16,7 @@ def create_db(data_path):
     timestr = time.strftime("%Y%m%d")
     daily = glob.glob(data_path + "/*daily_{}.csv".format(timestr))
     weekly = glob.glob(data_path + "/*weekly_{}.csv".format(timestr))
-    conn = lite.connect(r'D:\Diddly\Python\Stream\Data\Spotify.db')
+    conn = lite.connect(data_path + '\Spotify.db')
     c = conn.cursor()
     
     for daily_country in daily:

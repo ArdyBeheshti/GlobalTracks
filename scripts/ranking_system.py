@@ -247,3 +247,106 @@ def song_rankings(data_path):
         top_songs_weekly['Artist_Genres'] = artist_genres_weekly
 
         top_songs_weekly.to_csv(country_weekly)
+
+#
+# # function to find the coordinate of a given city
+# def findGeocode(city):
+#     # try and catch is used to overcome the exception thrown by geolocator using geocodertimedout
+#     try:
+#
+#         # Specify the user_agent as your
+#         # app name it should not be none
+#         geolocator = Nominatim(user_agent="spotify_countries")
+#
+#         return geolocator.geocode(city)
+#
+#     except GeocoderTimedOut:
+#
+#         return findGeocode(city)
+#
+# def Geocode(path):
+#     timestr = time.strftime("%Y%m%d")
+#
+#     # destination_folder = "D:\Diddly\Python\Stream\Data"
+#     daily = glob.glob(
+#         final_directory + "/*daily_{}.csv".format(timestr))  # Include slash or it will search in the wrong directory!!
+#     weekly = glob.glob(
+#         final_directory + "/*weekly_{}.csv".format(timestr))  # Include slash or it will search in the wrong directory!!
+#
+#     for country_daily in daily:
+#         top_songs_daily = pd.read_csv(country_daily)
+#
+#         head_tail = os.path.split(country_daily)[1]
+#         country_code = head_tail.split('_', 1)[0].replace('.', '').lower()
+#
+#         if country_code in all_markets:
+#             country_name = all_markets[country_code]
+#             top_songs_daily['Country'] = country_name
+#
+#         # each value from city column
+#         # will be fetched and sent to
+#         # function find_geocode
+#         daily_longitude = []
+#         daily_latitude = []
+#
+#         for i in (top_songs_daily["Country"]):
+#
+#             if findGeocode(i) is not None:
+#
+#                 loc = findGeocode(i)
+#
+#                 # coordinates returned from
+#                 # function is stored into
+#                 # two separate list
+#                 daily_latitude.append(loc.latitude)
+#                 daily_longitude.append(loc.longitude)
+#
+#                 # if coordinate for a city not
+#             # found, insert "NaN" indicating
+#             # missing value
+#             else:
+#                 daily_latitude.append(np.nan)
+#                 daily_longitude.append(np.nan)
+#
+#         top_songs_daily["Latitude"] = daily_latitude
+#         top_songs_daily["Longitude"] = daily_longitude
+#
+#         top_songs_daily.drop(top_songs_daily.iloc[:, 0:1], inplace=True, axis=1)
+#         top_songs_daily.to_csv(country_daily)
+#
+#     for country_weekly in weekly:
+#         top_songs_weekly = pd.read_csv(country_weekly)
+#
+#         head_tail = os.path.split(country_daily)[1]
+#         country_code = head_tail.split('_', 1)[0].replace('.', '').lower()
+#
+#         if country_code in all_markets:
+#             country_name = all_markets[country_code]
+#             top_songs_weekly['Country'] = country_name
+#
+#         weekly_longitude = []
+#         weekly_latitude = []
+#
+#         for i in (top_songs_weekly["Country"]):
+#             if findGeocode(i) != None:
+#
+#                 loc = findGeocode(i)
+#
+#                 # coordinates returned from
+#                 # function is stored into
+#                 # two separate list
+#                 weekly_latitude.append(loc.latitude)
+#                 weekly_longitude.append(loc.longitude)
+#
+#                 # if coordinate for a city not
+#             # found, insert "NaN" indicating
+#             # missing value
+#             else:
+#                 weekly_latitude.append(np.nan)
+#                 weekly_longitude.append(np.nan)
+#
+#         top_songs_weekly["Latitude"] = weekly_longitude
+#         top_songs_weekly["Longitude"] = weekly_latitude
+#
+#         top_songs_weekly.drop(top_songs_weekly.iloc[:, 0:1], inplace=True, axis=1)
+#         top_songs_weekly.to_csv(country_weekly)
