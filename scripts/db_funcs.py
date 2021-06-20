@@ -5,14 +5,13 @@ import glob
 import re
 import os
 
-def CreateDB(path):
-    current_directory = os.getcwd()
-    csv_directory = os.path.join(current_directory, r'Data')
-    conn = lite.connect(r'D:\Diddly\Python\GlobalTracks\sql_con\Spotify_Rankings.db')
+
+def create_db(data_path):
+    conn = lite.connect(os.path.join(data_path, 'Spotify_Rankings.db'))
     c = conn.cursor()
 
-    daily = glob.glob(csv_directory + "/*daily_*.csv")
-    weekly = glob.glob(csv_directory + "/*weekly_*.csv")
+    daily = glob.glob(data_path + "/*daily_*.csv")
+    weekly = glob.glob(data_path + "/*weekly_*.csv")
 
     for daily_country in daily:
         res = re.findall(r'\w+', daily_country)
@@ -45,20 +44,19 @@ def CreateDB(path):
     conn.close()
 
 
-def UpdateDB(path):
-    current_directory = os.getcwd()
-    csv_directory = os.path.join(current_directory, r'Data')
-    conn = lite.connect(r'D:\Diddly\Python\GlobalTracks\sql_con\Spotify_Rankings.db')
-
-    daily = glob.glob(csv_directory + "/*daily_*.csv")
-    weekly = glob.glob(csv_directory + "/*weekly_*.csv")
-
-    for daily_country in daily:
-        res = re.findall(r'\w+', daily_country)
-        daily = pd.read_csv(daily_country, index_col=[0])
-        daily.to_sql('{}'.format(res[5]), conn, if_exists='append', index=False)
-
-    for weekly_country in weekly:
-        res_weekly = re.findall(r'\w+', weekly_country)
-        weekly = pd.read_csv(weekly_country, index_col=[0])
-        weekly.to_sql('{}'.format(res_weekly[5]), conn, if_exists='append', index=False)
+# def update_db(data_path):
+#     conn = lite.connect(os.path.join(data_path, 'Spotify_Rankings.db'))
+#     c = conn.cursor()
+#
+#     daily = glob.glob(data_path + "/*daily_*.csv")
+#     weekly = glob.glob(data_path + "/*weekly_*.csv")
+#
+#     for daily_country in daily:
+#         res = re.findall(r'\w+', daily_country)
+#         daily = pd.read_csv(daily_country, index_col=[0])
+#         daily.to_sql('{}'.format(res[5]), conn, if_exists='append', index=False)
+#
+#     for weekly_country in weekly:
+#         res_weekly = re.findall(r'\w+', weekly_country)
+#         weekly = pd.read_csv(weekly_country, index_col=[0])
+#         weekly.to_sql('{}'.format(res_weekly[5]), conn, if_exists='append', index=False)
