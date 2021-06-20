@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Jun 16 21:18:18 2020
-
-@author: TheSandyOne
-"""
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
