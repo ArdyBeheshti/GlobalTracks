@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Jun 16 21:18:18 2020
-
-@author: TheSandyOne
-"""
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -48,6 +43,8 @@ def song_rankings(data_path):
         top_songs_daily.rename(columns={'Track Name': 'TrackName'}, inplace=True)
         top_songs_daily.insert(0, 'TrackID', range(0, 0 + len(top_songs_daily)))
 
+        # Generating list of urls to search and create lists of song information
+        # This process is done for daily & weekly
         daily_song_urls = list(top_songs_daily.URL)
         daily_song_ids = []
 
@@ -159,6 +156,8 @@ def song_rankings(data_path):
         top_songs_weekly.rename(columns={'Track Name': 'TrackName'}, inplace=True)
         top_songs_weekly.insert(0, 'TrackID', range(0, 0 + len(top_songs_weekly)))
 
+        # Generating list of urls to search and create lists of song information
+        # This process is done for daily & weekly
         weekly_song_urls = list(top_songs_weekly.URL)
         weekly_song_ids = []
 

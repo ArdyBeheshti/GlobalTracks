@@ -1,12 +1,12 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+# from selenium import webdriver
+# from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 import undetected_chromedriver.v2 as uc
 import time
 import shutil
 import glob
 from pathlib import Path
-import os, os.path
+import os
 
 
 def data_pull(path):
@@ -19,7 +19,7 @@ def data_pull(path):
 
     p = {'download.default_directory': final_directory}
 
-    final_directory = os.path.join(path, r'TestData')
+    final_directory = os.path.join(path, 'TestData')
     print(f'Made {final_directory} folder.')
     if not os.path.exists(final_directory):
         os.makedirs(final_directory)

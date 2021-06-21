@@ -52,7 +52,7 @@ all_markets = {
     "us": "United States"
 }
 
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='d241e12e40ca46ac8b28a28814122ef8', client_secret='b743601d2cdd4507865231b8edae99aa'))
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='', client_secret=''))
 translator = Translator(service_urls=['translate.googleapis.com'])
 
 current_directory = os.getcwd()
