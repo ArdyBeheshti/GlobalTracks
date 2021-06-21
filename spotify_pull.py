@@ -172,6 +172,8 @@ class SpotifyPull:
         weekly = glob.glob(
             data_path + "/*weekly_{}.csv".format(timestr))  # Include slash or it will search in the wrong directory!!
 
+        # put tqdm in here
+
         for country_daily in daily:
             # Read input files
             top_songs_daily = pd.read_csv(country_daily,
@@ -400,11 +402,11 @@ class SpotifyPull:
             top_songs_weekly.to_csv(country_weekly)
 
     def create_db(self):
-        conn = lite.connect(os.path.join(self.data_path, 'Spotify_Rankings.db'))
+        conn = lite.connect(os.path.join(data_path, 'Spotify_Rankings.db'))
         c = conn.cursor()
 
-        daily = glob.glob(self.data_path + "/*daily_*.csv")
-        weekly = glob.glob(self.data_path + "/*weekly_*.csv")
+        daily = glob.glob(data_path + "/*daily_*.csv")
+        weekly = glob.glob(data_path + "/*weekly_*.csv")
 
         for daily_country in daily:
             res = re.findall(r'\w+', daily_country)
