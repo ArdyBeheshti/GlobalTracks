@@ -433,7 +433,7 @@ class SpotifyPull:
             # each value from city column
             # will be fetched and sent to
             # function find_geocode
-            top_songs_daily['gcode'] = top_songs_daily.full_address.apply(geolocator.geocode)
+            top_songs_daily['gcode'] = top_songs_daily['Country'].apply(geolocator.geocode)
 
             top_songs_daily["Latitude"] = [g.latitude for g in top_songs_daily.gcode]
             top_songs_daily["Longitude"] = [g.latitude for g in top_songs_daily.gcode]
