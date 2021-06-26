@@ -11,6 +11,9 @@ from googletrans import Translator
 import pandas as pd
 import re
 import sqlite3 as lite
+import numpy as np
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut
 
 
 auth_manager = SpotifyClientCredentials()
@@ -18,6 +21,90 @@ sp = spotipy.Spotify(auth_manager=auth_manager)
 translator = Translator()
 
 path = os.getcwd()
+data_path = os.path.join(path, r'TestData')
+
+countries = (
+    "us")
+
+all_markets = {
+    "US": "United States"
+};
+
+
+# countries = (
+# "ad","ar","au","at","be",
+# "bo","br","bg","ca","cl",
+# "co","cr","cy","cz","dk",
+# "do","ec","sv","ee","fi",
+# "fr","de","gr","gt","hn",
+# "hk","hu","id","is","ie","it",
+# "jp","lv","li","lt","lu","my",
+# "mt","mx","mc","nl","nz",
+# "ni","no","pa","py","pe",
+# "ph","pl","pt","es","sg",
+# "sk","se","ch","tw","tr",
+# "gb","us","uy")
+
+#   all_markets = {
+#   "AD": "Andorra","AR": "Argentina","AU": "Australia",
+#   "AT": "Austria",
+#   "BE": "Belgium",
+#   "BO": "Bolivia",
+#   "BR": "Brazil",
+#   "BG": "Bulgaria",
+#   "CA": "Canada",
+#   "CL": "Chile",
+#   "CO": "Colombia",
+#   "CR": "Costa Rica",
+#   "CY": "Cyprus",
+#   "CZ": "Czech Republic",
+#   "DK": "Denmark",
+#   "DO": "Dominican Republic",
+#   "EC": "Ecuador",
+#   "SV": "El Salvador",
+#   "EE": "Estonia",
+#   "FI": "Finland",
+#   "FR": "France",
+#   "DE": "Germany",
+#   "GR": "Greece",
+#   "GT": "Guatemala",
+#   "HN": "Honduras",
+#   "HK": "Hong Kong",
+#   "HU": "Hungary",
+#   "ID": "Indonesia",
+#   "IS": "Iceland",
+#   "IE": "Republic of Ireland",
+#   "IT": "Italy",
+#   "JP": "Japan",
+#   "LV": "Latvia",
+#   "LI": "Liechtenstein",
+#   "LT": "Lithuania",
+#   "LU": "Luxembourg",
+#   "MY": "Malaysia",
+#   "MT": "Malta",
+#   "MX": "Mexico",
+#   "MC": "Monaco",
+#   "NL": "Netherlands",
+#   "NZ": "New Zealand",
+#   "NI": "Nicaragua",
+#   "NO": "Norway",
+#   "PA": "Panama",
+#   "PY": "Paraguay",
+#   "PE": "Peru",
+#   "PH": "Philippines",
+#   "PL": "Poland",
+#   "PT": "Portugal",
+#   "ES": "Spain",
+#   "SG": "Singapore",
+#   "SK": "Slovakia",
+#   "SE": "Sweden",
+#   "CH": "Switzerland",
+#   "TW": "Taiwan",
+#   "TR": "Turkey",
+#   "GB": "United Kingdom",
+#   "US": "United States",
+#   "UY": "Uruguay"
+# };
 
 
 class SpotifyPull:
@@ -31,93 +118,14 @@ class SpotifyPull:
         # options.add_argument('--headless')
         driver = uc.Chrome(options=options)
 
-        final_directory = self.path + '/TestData'
+        final_directory = path + '/TestData'
 
         p = {'download.default_directory': final_directory}
 
-        final_directory = os.path.join(self.path, 'TestData')
+        final_directory = os.path.join(path, 'TestData')
         print(f'Made {final_directory} folder.')
         if not os.path.exists(final_directory):
             os.makedirs(final_directory)
-
-        countries = (
-            "fr", "de", "gr",
-            "jp", "us")
-
-        # countries = (
-        # "ad","ar","au","at","be",
-        # "bo","br","bg","ca","cl",
-        # "co","cr","cy","cz","dk",
-        # "do","ec","sv","ee","fi",
-        # "fr","de","gr","gt","hn",
-        # "hk","hu","id","is","ie","it",
-        # "jp","lv","li","lt","lu","my",
-        # "mt","mx","mc","nl","nz",
-        # "ni","no","pa","py","pe",
-        # "ph","pl","pt","es","sg",
-        # "sk","se","ch","tw","tr",
-        # "gb","us","uy")
-
-        #   all_markets = {
-        #   "AD": "Andorra","AR": "Argentina","AU": "Australia",
-        #   "AT": "Austria",
-        #   "BE": "Belgium",
-        #   "BO": "Bolivia",
-        #   "BR": "Brazil",
-        #   "BG": "Bulgaria",
-        #   "CA": "Canada",
-        #   "CL": "Chile",
-        #   "CO": "Colombia",
-        #   "CR": "Costa Rica",
-        #   "CY": "Cyprus",
-        #   "CZ": "Czech Republic",
-        #   "DK": "Denmark",
-        #   "DO": "Dominican Republic",
-        #   "EC": "Ecuador",
-        #   "SV": "El Salvador",
-        #   "EE": "Estonia",
-        #   "FI": "Finland",
-        #   "FR": "France",
-        #   "DE": "Germany",
-        #   "GR": "Greece",
-        #   "GT": "Guatemala",
-        #   "HN": "Honduras",
-        #   "HK": "Hong Kong",
-        #   "HU": "Hungary",
-        #   "ID": "Indonesia",
-        #   "IS": "Iceland",
-        #   "IE": "Republic of Ireland",
-        #   "IT": "Italy",
-        #   "JP": "Japan",
-        #   "LV": "Latvia",
-        #   "LI": "Liechtenstein",
-        #   "LT": "Lithuania",
-        #   "LU": "Luxembourg",
-        #   "MY": "Malaysia",
-        #   "MT": "Malta",
-        #   "MX": "Mexico",
-        #   "MC": "Monaco",
-        #   "NL": "Netherlands",
-        #   "NZ": "New Zealand",
-        #   "NI": "Nicaragua",
-        #   "NO": "Norway",
-        #   "PA": "Panama",
-        #   "PY": "Paraguay",
-        #   "PE": "Peru",
-        #   "PH": "Philippines",
-        #   "PL": "Poland",
-        #   "PT": "Portugal",
-        #   "ES": "Spain",
-        #   "SG": "Singapore",
-        #   "SK": "Slovakia",
-        #   "SE": "Sweden",
-        #   "CH": "Switzerland",
-        #   "TW": "Taiwan",
-        #   "TR": "Turkey",
-        #   "GB": "United Kingdom",
-        #   "US": "United States",
-        #   "UY": "Uruguay"
-        # };
 
         for country in countries:
             driver.get('https://spotifycharts.com/regional/{}/daily/latest'.format(country))
@@ -168,9 +176,11 @@ class SpotifyPull:
         timestr = time.strftime("%Y%m%d")
 
         daily = glob.glob(
-            self.data_path + "/*daily_{}.csv".format(timestr))  # Include slash or it will search in the wrong directory!!
+            data_path + "/*daily_{}.csv".format(timestr))  # Include slash or it will search in the wrong directory!!
         weekly = glob.glob(
-            self.data_path + "/*weekly_{}.csv".format(timestr))  # Include slash or it will search in the wrong directory!!
+            data_path + "/*weekly_{}.csv".format(timestr))  # Include slash or it will search in the wrong directory!!
+
+        # put tqdm in here
 
         for country_daily in daily:
             # Read input files
@@ -399,12 +409,113 @@ class SpotifyPull:
 
             top_songs_weekly.to_csv(country_weekly)
 
+    def find_geocode(self, city):
+        # try and catch is used to overcome the exception thrown by geolocator using geocodertimedout
+        try:
+
+            # Specify the user_agent as your
+            # app name it should not be none
+            geolocator = Nominatim(user_agent="spotify_countries")
+
+            return geolocator.geocode(city)
+
+        except GeocoderTimedOut:
+
+            return self.find_geocode(city)
+
+    def geocode(self):
+        timestr = time.strftime("%Y%m%d")
+
+        # destination_folder = "D:\Diddly\Python\Stream\Data"
+        daily = glob.glob(data_path + "/*daily_{}.csv".format(
+            timestr))  # Include slash or it will search in the wrong directory!!
+        weekly = glob.glob(data_path + "/*weekly_{}.csv".format(
+            timestr))  # Include slash or it will search in the wrong directory!!
+
+        for country_daily in daily:
+            top_songs_daily = pd.read_csv(country_daily)
+
+            head_tail = os.path.split(country_daily)[1]
+            country_code = head_tail.split('_', 1)[0].replace('.', '').lower()
+
+            if country_code in all_markets:
+                country_name = all_markets[country_code]
+                top_songs_daily['Country'] = country_name
+
+            # each value from city column
+            # will be fetched and sent to
+            # function find_geocode
+            daily_longitude = []
+            daily_latitude = []
+
+            for i in (top_songs_daily["Country"]):
+
+                if self.find_geocode(i) is not None:
+
+                    loc = self.find_geocode(i)
+
+                    # coordinates returned from
+                    # function is stored into
+                    # two separate list
+                    daily_latitude.append(loc.latitude)
+                    daily_longitude.append(loc.longitude)
+
+                    # if coordinate for a city not
+                # found, insert "NaN" indicating
+                # missing value
+                else:
+                    daily_latitude.append(np.nan)
+                    daily_longitude.append(np.nan)
+
+            top_songs_daily["Latitude"] = daily_latitude
+            top_songs_daily["Longitude"] = daily_longitude
+
+            top_songs_daily.drop(top_songs_daily.iloc[:, 0:1], inplace=True, axis=1)
+            top_songs_daily.to_csv(country_daily)
+
+        for country_weekly in weekly:
+            top_songs_weekly = pd.read_csv(country_weekly)
+
+            head_tail = os.path.split(country_daily)[1]
+            country_code = head_tail.split('_', 1)[0].replace('.', '').lower()
+
+            if country_code in all_markets:
+                country_name = all_markets[country_code]
+                top_songs_weekly['Country'] = country_name
+
+            weekly_longitude = []
+            weekly_latitude = []
+
+            for i in (top_songs_weekly["Country"]):
+                if self.find_geocode(i) is not None:
+
+                    loc = self.find_geocode(i)
+
+                    # coordinates returned from
+                    # function is stored into
+                    # two separate list
+                    weekly_latitude.append(loc.latitude)
+                    weekly_longitude.append(loc.longitude)
+
+                    # if coordinate for a city not
+                # found, insert "NaN" indicating
+                # missing value
+                else:
+                    weekly_latitude.append(np.nan)
+                    weekly_longitude.append(np.nan)
+
+            top_songs_weekly["Latitude"] = weekly_longitude
+            top_songs_weekly["Longitude"] = weekly_latitude
+
+            top_songs_weekly.drop(top_songs_weekly.iloc[:, 0:1], inplace=True, axis=1)
+            top_songs_weekly.to_csv(country_weekly)
+
     def create_db(self):
-        conn = lite.connect(os.path.join(self.data_path, 'Spotify_Rankings.db'))
+        conn = lite.connect(os.path.join(data_path, 'Spotify_Rankings.db'))
         c = conn.cursor()
 
-        daily = glob.glob(self.data_path + "/*daily_*.csv")
-        weekly = glob.glob(self.data_path + "/*weekly_*.csv")
+        daily = glob.glob(data_path + "/*daily_*.csv")
+        weekly = glob.glob(data_path + "/*weekly_*.csv")
 
         for daily_country in daily:
             res = re.findall(r'\w+', daily_country)
@@ -437,16 +548,16 @@ class SpotifyPull:
         conn.close()
 
 
-SpotifyPull.data_pull(path)
-print('Finished spotify data pull')
-
-data_path = os.path.join(path, r'TestData')
-
-SpotifyPull.song_rankings(data_path)
-print('Finished ranking songs')
-
-SpotifyPull.create_db(data_path)
-print('Finished creating database')
+# SpotifyPull.data_pull(path)
+# print('Finished spotify data pull')
+#
+# data_path = os.path.join(path, r'TestData')
+#
+# SpotifyPull.song_rankings(data_path)
+# print('Finished ranking songs')
+#
+# SpotifyPull.create_db(data_path)
+# print('Finished creating database')
 
 
 
