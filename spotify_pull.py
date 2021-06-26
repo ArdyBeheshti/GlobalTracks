@@ -404,22 +404,10 @@ class SpotifyPull:
 
             top_songs_weekly.to_csv(country_weekly)
 
-    def find_geocode(self, city):
-        # try and catch is used to overcome the exception thrown by geolocator using geocodertimedout
-        try:
-
-            # Specify the user_agent as your
-            # app name it should not be none
-            geolocator = Nominatim(user_agent="spotify_countries")
-
-            return geolocator.geocode(city)
-
-        except GeocoderTimedOut:
-
-            return self.find_geocode(city)
-
     def geocode(self):
         timestr = time.strftime("%Y%m%d")
+
+        geolocator = Nominatim(user_agent="spotify_countries")
 
         all_markets = {
             "JP": "Japan",
@@ -436,7 +424,7 @@ class SpotifyPull:
             top_songs_daily = pd.read_csv(country_daily)
 
             head_tail = os.path.split(country_daily)[1]
-            country_code = head_tail.split('_', 1)[0].replace('.', '').lower()
+            country_code = head_tail.split('_', 1)[0].replace('.', '').upper()
 
             if country_code in all_markets:
                 country_name = all_markets[country_code]
@@ -445,30 +433,10 @@ class SpotifyPull:
             # each value from city column
             # will be fetched and sent to
             # function find_geocode
-            daily_longitude = []
-            daily_latitude = []
+            top_songs_daily['gcode'] = top_songs_daily.full_address.apply(geolocator.geocode)
 
-            for i in (top_songs_daily["Country"]):
-
-                if self.find_geocode(i) is not None:
-
-                    loc = self.find_geocode(i)
-
-                    # coordinates returned from
-                    # function is stored into
-                    # two separate list
-                    daily_latitude.append(loc.latitude)
-                    daily_longitude.append(loc.longitude)
-
-                    # if coordinate for a city not
-                # found, insert "NaN" indicating
-                # missing value
-                else:
-                    daily_latitude.append(np.nan)
-                    daily_longitude.append(np.nan)
-
-            top_songs_daily["Latitude"] = daily_latitude
-            top_songs_daily["Longitude"] = daily_longitude
+            top_songs_daily["Latitude"] = [g.latitude for g in top_songs_daily.gcode]
+            top_songs_daily["Longitude"] = [g.latitude for g in top_songs_daily.gcode]
 
             top_songs_daily.drop(top_songs_daily.iloc[:, 0:1], inplace=True, axis=1)
             top_songs_daily.to_csv(country_daily)
@@ -483,29 +451,10 @@ class SpotifyPull:
                 country_name = all_markets[country_code]
                 top_songs_weekly['Country'] = country_name
 
-            weekly_longitude = []
-            weekly_latitude = []
+            top_songs_weekly['gcode'] = top_songs_weekly.full_address.apply(geolocator.geocode)
 
-            for i in (top_songs_weekly["Country"]):
-                if self.find_geocode(i) is not None:
-
-                    loc = self.find_geocode(i)
-
-                    # coordinates returned from
-                    # function is stored into
-                    # two separate list
-                    weekly_latitude.append(loc.latitude)
-                    weekly_longitude.append(loc.longitude)
-
-                    # if coordinate for a city not
-                # found, insert "NaN" indicating
-                # missing value
-                else:
-                    weekly_latitude.append(np.nan)
-                    weekly_longitude.append(np.nan)
-
-            top_songs_weekly["Latitude"] = weekly_longitude
-            top_songs_weekly["Longitude"] = weekly_latitude
+            top_songs_weekly["Latitude"] = [g.latitude for g in top_songs_weekly.gcode]
+            top_songs_weekly["Longitude"] = [g.latitude for g in top_songs_weekly.gcode]
 
             top_songs_weekly.drop(top_songs_weekly.iloc[:, 0:1], inplace=True, axis=1)
             top_songs_weekly.to_csv(country_weekly)
@@ -548,14 +497,15 @@ class SpotifyPull:
         conn.close()
 
 
-# SpotifyPull.data_pull(path)
-# print('Finished spotify data pull')
-#
-# data_path = os.path.join(path, r'TestData')
-#
-# SpotifyPull.song_rankings(data_path)
-# print('Finished ranking songs')
-#
+SpotifyPull.data_pull(path)
+print('Finished spotify data pull')
+
+SpotifyPull.song_rankings(data_path)
+print('Finished ranking songs')
+
+SpotifyPull.geocode(data_path)
+print("Finished geocoding locations")
+
 # SpotifyPull.create_db(data_path)
 # print('Finished creating database')
 
