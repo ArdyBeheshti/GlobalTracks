@@ -7,96 +7,95 @@ from pathlib import Path
 import os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from googletrans import Translator
+# from pygoogletranslation import Translator
+# from googletrans import Translator
 import pandas as pd
 import re
 import sqlite3 as lite
-import numpy as np
 from geopy.geocoders import Nominatim
-from geopy.exc import GeocoderTimedOut
-
+from tqdm import tqdm
 
 auth_manager = SpotifyClientCredentials()
 sp = spotipy.Spotify(auth_manager=auth_manager)
-translator = Translator()
+# translator = Translator()
 
 path = os.getcwd()
 data_path = os.path.join(path, r'TestData')
 
-# countries = (
-# "ad","ar","au","at","be",
-# "bo","br","bg","ca","cl",
-# "co","cr","cy","cz","dk",
-# "do","ec","sv","ee","fi",
-# "fr","de","gr","gt","hn",
-# "hk","hu","id","is","ie","it",
-# "jp","lv","li","lt","lu","my",
-# "mt","mx","mc","nl","nz",
-# "ni","no","pa","py","pe",
-# "ph","pl","pt","es","sg",
-# "sk","se","ch","tw","tr",
-# "gb","us","uy")
+countries = (
+    "ad", "ar", "au", "at", "be",
+    "bo", "br", "bg", "ca", "cl",
+    "co", "cr", "cy", "cz", "dk",
+    "do", "ec", "sv", "ee", "fi",
+    "fr", "de", "gr", "gt", "hn",
+    "hk", "hu", "id", "is", "ie", "it",
+    "jp", "lv", "li", "lt", "lu", "my",
+    "mt", "mx", "mc", "nl", "nz",
+    "ni", "no", "pa", "py", "pe",
+    "ph", "pl", "pt", "es", "sg",
+    "sk", "se", "ch", "tw", "tr",
+    "gb", "us", "uy")
 
-#   all_markets = {
-#   "AD": "Andorra","AR": "Argentina","AU": "Australia",
-#   "AT": "Austria",
-#   "BE": "Belgium",
-#   "BO": "Bolivia",
-#   "BR": "Brazil",
-#   "BG": "Bulgaria",
-#   "CA": "Canada",
-#   "CL": "Chile",
-#   "CO": "Colombia",
-#   "CR": "Costa Rica",
-#   "CY": "Cyprus",
-#   "CZ": "Czech Republic",
-#   "DK": "Denmark",
-#   "DO": "Dominican Republic",
-#   "EC": "Ecuador",
-#   "SV": "El Salvador",
-#   "EE": "Estonia",
-#   "FI": "Finland",
-#   "FR": "France",
-#   "DE": "Germany",
-#   "GR": "Greece",
-#   "GT": "Guatemala",
-#   "HN": "Honduras",
-#   "HK": "Hong Kong",
-#   "HU": "Hungary",
-#   "ID": "Indonesia",
-#   "IS": "Iceland",
-#   "IE": "Republic of Ireland",
-#   "IT": "Italy",
-#   "JP": "Japan",
-#   "LV": "Latvia",
-#   "LI": "Liechtenstein",
-#   "LT": "Lithuania",
-#   "LU": "Luxembourg",
-#   "MY": "Malaysia",
-#   "MT": "Malta",
-#   "MX": "Mexico",
-#   "MC": "Monaco",
-#   "NL": "Netherlands",
-#   "NZ": "New Zealand",
-#   "NI": "Nicaragua",
-#   "NO": "Norway",
-#   "PA": "Panama",
-#   "PY": "Paraguay",
-#   "PE": "Peru",
-#   "PH": "Philippines",
-#   "PL": "Poland",
-#   "PT": "Portugal",
-#   "ES": "Spain",
-#   "SG": "Singapore",
-#   "SK": "Slovakia",
-#   "SE": "Sweden",
-#   "CH": "Switzerland",
-#   "TW": "Taiwan",
-#   "TR": "Turkey",
-#   "GB": "United Kingdom",
-#   "US": "United States",
-#   "UY": "Uruguay"
-# };
+all_markets = {
+    "AD": "Andorra", "AR": "Argentina", "AU": "Australia",
+    "AT": "Austria",
+    "BE": "Belgium",
+    "BO": "Bolivia",
+    "BR": "Brazil",
+    "BG": "Bulgaria",
+    "CA": "Canada",
+    "CL": "Chile",
+    "CO": "Colombia",
+    "CR": "Costa Rica",
+    "CY": "Cyprus",
+    "CZ": "Czech Republic",
+    "DK": "Denmark",
+    "DO": "Dominican Republic",
+    "EC": "Ecuador",
+    "SV": "El Salvador",
+    "EE": "Estonia",
+    "FI": "Finland",
+    "FR": "France",
+    "DE": "Germany",
+    "GR": "Greece",
+    "GT": "Guatemala",
+    "HN": "Honduras",
+    "HK": "Hong Kong",
+    "HU": "Hungary",
+    "ID": "Indonesia",
+    "IS": "Iceland",
+    "IE": "Republic of Ireland",
+    "IT": "Italy",
+    "JP": "Japan",
+    "LV": "Latvia",
+    "LI": "Liechtenstein",
+    "LT": "Lithuania",
+    "LU": "Luxembourg",
+    "MY": "Malaysia",
+    "MT": "Malta",
+    "MX": "Mexico",
+    "MC": "Monaco",
+    "NL": "Netherlands",
+    "NZ": "New Zealand",
+    "NI": "Nicaragua",
+    "NO": "Norway",
+    "PA": "Panama",
+    "PY": "Paraguay",
+    "PE": "Peru",
+    "PH": "Philippines",
+    "PL": "Poland",
+    "PT": "Portugal",
+    "ES": "Spain",
+    "SG": "Singapore",
+    "SK": "Slovakia",
+    "SE": "Sweden",
+    "CH": "Switzerland",
+    "TW": "Taiwan",
+    "TR": "Turkey",
+    "GB": "United Kingdom",
+    "US": "United States",
+    "UY": "Uruguay"
+};
 
 
 class SpotifyPull:
@@ -110,9 +109,6 @@ class SpotifyPull:
         # options.add_argument('--headless')
         driver = uc.Chrome(options=options)
 
-        countries = {"jp",
-                     "us"};
-
         final_directory = path + '/TestData'
 
         p = {'download.default_directory': final_directory}
@@ -122,7 +118,7 @@ class SpotifyPull:
         if not os.path.exists(final_directory):
             os.makedirs(final_directory)
 
-        for country in countries:
+        for country in tqdm(countries):
             driver.get('https://spotifycharts.com/regional/{}/daily/latest'.format(country))
 
             try:
@@ -153,12 +149,8 @@ class SpotifyPull:
             for file in glob.glob("*daily-latest.csv"):
                 shutil.move(file, final_directory)
 
-            print(f'Moved {file} Files.')
-
             for file in glob.glob("*weekly-latest.csv"):
                 shutil.move(file, final_directory)
-
-            print(f'Moved {file} Files.')
 
             os.chdir(final_directory)
             os.rename('regional-{}-daily-latest.csv'.format(country), "{}_top200_daily_{}.csv".format(country, timestr))
@@ -175,9 +167,7 @@ class SpotifyPull:
         weekly = glob.glob(
             data_path + "/*weekly_{}.csv".format(timestr))  # Include slash or it will search in the wrong directory!!
 
-        # put tqdm in here
-
-        for country_daily in daily:
+        for country_daily in tqdm(daily):
             # Read input files
             top_songs_daily = pd.read_csv(country_daily,
                                           skiprows=range(0, 1))
@@ -275,23 +265,24 @@ class SpotifyPull:
             top_songs_daily['URI'] = daily_uri
             top_songs_daily['Valence'] = daily_valence
 
-            artist_genres_daily = []
-            tmp_artists_daily = list(top_songs_daily.Artist)
+            # artist_genres_daily = []
+            # tmp_artists_daily = list(top_songs_daily.Artist)
+            #
+            # for artist_daily in tmp_artists_daily:
+            #     translation_daily = translator.translate("{}".format(artist_daily))
+            #     result_daily = sp.search('{}'.format(translation_daily.text), limit=1, type='artist')
+            #     artists_d = result_daily['artists']
+            #     if not artists_d['items']:
+            #         artist_genres_daily.append('')
+            #     else:
+            #         artist_genres_daily.append(artists_d['items'][0]['genres'])
+            #
+            # time.sleep(30)
+            # top_songs_daily['Artist_Genres'] = artist_genres_daily
+            #
+            # top_songs_daily.to_csv(country_daily)
 
-            for artist_daily in tmp_artists_daily:
-                translation_daily = translator.translate("{}".format(artist_daily))
-                result_daily = sp.search('{}'.format(translation_daily.text), limit=1, type='artist')
-                artists_d = result_daily['artists']
-                if not artists_d['items']:
-                    artist_genres_daily.append('')
-                else:
-                    artist_genres_daily.append(artists_d['items'][0]['genres'])
-
-            top_songs_daily['Artist_Genres'] = artist_genres_daily
-
-            top_songs_daily.to_csv(country_daily)
-
-        for country_weekly in weekly:
+        for country_weekly in tqdm(weekly):
             # Read input files
             top_songs_weekly = pd.read_csv(country_weekly,
                                            skiprows=range(0, 1))
@@ -388,19 +379,20 @@ class SpotifyPull:
             top_songs_weekly['URI'] = weekly_uri
             top_songs_weekly['Valence'] = weekly_valence
 
-            artist_genres_weekly = []
-            tmp_artists_weekly = list(top_songs_weekly.Artist)
-
-            for artist_weekly in tmp_artists_weekly:
-                translation_weekly = translator.translate("{}".format(artist_weekly))
-                result_weekly = sp.search('{}'.format(translation_weekly.text), limit=1, type='artist')
-                artists_w = result_weekly['artists']
-                if not artists_w['items']:
-                    artist_genres_weekly.append('')
-                else:
-                    artist_genres_weekly.append(artists_w['items'][0]['genres'])
-
-            top_songs_weekly['Artist_Genres'] = artist_genres_weekly
+            # artist_genres_weekly = []
+            # tmp_artists_weekly = list(top_songs_weekly.Artist)
+            #
+            # for artist_weekly in tmp_artists_weekly:
+            #     translation_weekly = translator.translate("{}".format(artist_weekly))
+            #     result_weekly = sp.search('{}'.format(translation_weekly.text), limit=1, type='artist')
+            #     artists_w = result_weekly['artists']
+            #     if not artists_w['items']:
+            #         artist_genres_weekly.append('')
+            #     else:
+            #         artist_genres_weekly.append(artists_w['items'][0]['genres'])
+            #
+            # time.sleep(30)
+            # top_songs_weekly['Artist_Genres'] = artist_genres_weekly
 
             top_songs_weekly.to_csv(country_weekly)
 
@@ -409,18 +401,13 @@ class SpotifyPull:
 
         geolocator = Nominatim(user_agent="spotify_countries")
 
-        all_markets = {
-            "JP": "Japan",
-            "US": "United States"
-        };
-
         # destination_folder = "D:\Diddly\Python\Stream\Data"
         daily = glob.glob(data_path + "/*daily_{}.csv".format(
             timestr))  # Include slash or it will search in the wrong directory!!
         weekly = glob.glob(data_path + "/*weekly_{}.csv".format(
             timestr))  # Include slash or it will search in the wrong directory!!
 
-        for country_daily in daily:
+        for country_daily in tqdm(daily):
             top_songs_daily = pd.read_csv(country_daily)
 
             head_tail = os.path.split(country_daily)[1]
@@ -441,7 +428,7 @@ class SpotifyPull:
             top_songs_daily.drop(top_songs_daily.iloc[:, 0:1], inplace=True, axis=1)
             top_songs_daily.to_csv(country_daily)
 
-        for country_weekly in weekly:
+        for country_weekly in tqdm(weekly):
             top_songs_weekly = pd.read_csv(country_weekly)
 
             head_tail = os.path.split(country_daily)[1]
@@ -508,7 +495,3 @@ print("Finished geocoding locations")
 
 # SpotifyPull.create_db(data_path)
 # print('Finished creating database')
-
-
-
-
