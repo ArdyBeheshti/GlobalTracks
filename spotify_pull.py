@@ -445,7 +445,7 @@ class SpotifyPull:
             top_songs_weekly = pd.read_csv(country_weekly)
 
             head_tail = os.path.split(country_daily)[1]
-            country_code = head_tail.split('_', 1)[0].replace('.', '').lower()
+            country_code = head_tail.split('_', 1)[0].replace('.', '').upper()
 
             if country_code in all_markets:
                 country_name = all_markets[country_code]
