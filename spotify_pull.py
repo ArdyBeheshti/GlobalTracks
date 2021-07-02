@@ -280,7 +280,7 @@ class SpotifyPull:
             # time.sleep(30)
             # top_songs_daily['Artist_Genres'] = artist_genres_daily
             #
-            # top_songs_daily.to_csv(country_daily)
+            top_songs_daily.to_csv(country_daily)
 
         for country_weekly in tqdm(weekly):
             # Read input files
